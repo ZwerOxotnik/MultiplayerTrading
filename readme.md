@@ -69,6 +69,9 @@ This only applies to leafs in the technology tree. That is tech that is not list
 
 # <a name="terms-of-use"></a> Terms of use
 
+Copyright (c) 2019 Luke Perkin (https://github.com/perky)
+Modification Copyright (c) 2019-2020, 2024 ZwerOxotnik (https://github.com/ZwerOxotnik) <zweroxotnik@gmail.com>
+
 [![Creative Commons License](https://licensebuttons.net/l/by/4.0/88x31.png)](https://creativecommons.org/licenses/by/4.0/)
 
 This work is a derivative of "Multiplayer Trading" by Luke Perkin, used under [Creative Commons Attribution 4.0 Unported license](https://creativecommons.org/licenses/by/4.0/). This work is attributed to Luke Perkin and ZwerOxotnik, and the original version can be found [here](https://mods.factorio.com/mod/multiplayertrading).

@@ -6,10 +6,10 @@ return {
             production = 500
         },
         recipe = {
-            ingredients = {{"iron-plate", 1}},
+            ingredients = {{type = "item", name = "iron-plate", amount = 1}},
             energy_required = 0.5,
             disables = {"iron-gear-wheel"},
-            result = "iron-gear-wheel"
+            results = {{type = "item", name = "iron-gear-wheel", amount = 1}}
         }
     },
     {
@@ -19,9 +19,12 @@ return {
             production = 350
         },
         recipe = {
-            ingredients = {{"copper-cable", 1}, {"iron-plate", 1}},
+            ingredients = {
+				{type = "item", name = "copper-cable", amount = 1},
+				{type = "item", name = "iron-plate",   amount = 1}
+			},
             energy_required = 0.4,
-            result = "electronic-circuit"
+            results = {{type = "item", name = "electronic-circuit", amount = 1}}
         }
     },
     {
@@ -31,9 +34,13 @@ return {
             production = 200
         },
         recipe = {
-            ingredients = {{"copper-cable", 2}, {"electronic-circuit", 1}, {"plastic-bar", 1}},
+            ingredients = {
+				{type = "item", name = "copper-cable",       amount = 2},
+				{type = "item", name = "electronic-circuit", amount = 1},
+				{type = "item", name = "plastic-bar",        amount = 1}
+			},
             energy_required = 5,
-            result = "advanced-circuit"
+            results = {{type = "item", name = "advanced-circuit", amount = 1}}
         }
     },
     {
@@ -44,9 +51,13 @@ return {
         },
         recipe = {
             category = "crafting-with-fluid",
-            ingredients = {{"advanced-circuit", 1}, {"electronic-circuit", 15}, {type = "fluid", name = "sulfuric-acid", amount = 3}},
+            ingredients = {
+				{type = "item", name = "advanced-circuit",   amount = 1},
+				{type = "item", name = "electronic-circuit", amount = 15},
+				{type = "fluid", name = "sulfuric-acid",     amount = 3}
+			},
             energy_required = 9,
-            result = "processing-unit",
+            results = {{type = "item", name = "processing-unit", amount = 1}}
         }
     },
     {
@@ -56,9 +67,13 @@ return {
             production = 80
         },
         recipe = {
-            ingredients = {{"copper-plate", 3}, {"firearm-magazine", 1}, {"steel-plate", 1}},
+            ingredients = {
+				{type = "item", name = "copper-plate",     amount = 3},
+				{type = "item", name = "firearm-magazine", amount = 1},
+				{type = "item", name = "steel-plate",      amount = 1}
+			},
             energy_required = 2,
-            result = "piercing-rounds-magazine",
+            results = {{type = "item", name = "piercing-rounds-magazine", amount = 1}}
         }
     },
     {
@@ -68,9 +83,12 @@ return {
             production = 40
         },
         recipe = {
-            ingredients = {{"piercing-rounds-magazine", 1}, {"uranium-238", 1}},
+            ingredients = {
+				{type = "item", name = "piercing-rounds-magazine", amount = 1},
+				{type = "item", name = "uranium-238", amount = 1}
+			},
             energy_required = 7,
-            result = "uranium-rounds-magazine",
+            results = {{type = "item", name = "uranium-rounds-magazine", amount = 1}}
         }
     },
     {
@@ -81,9 +99,13 @@ return {
         },
         recipe = {
             category = "crafting-with-fluid",
-            ingredients = {{"coal", 1}, {"sulfur", 1}, {type="fluid", name="water", amount=5}},
+            ingredients = {
+				{type = "item", name = "coal",   amount = 1},
+				{type = "item", name = "sulfur", amount = 1},
+				{type="fluid", name="water",     amount = 5}
+			},
             energy_required = 4,
-            results = {{"explosives", 3}},
+            results = {{type = "item", name = "explosives", amount = 3}},
         }
     },
     {
@@ -93,9 +115,12 @@ return {
             production = 20
         },
         recipe = {
-            ingredients = {{"electronic-circuit", 3}, {"advanced-circuit", 3}},
+            ingredients = {
+				{type = "item", name = "electronic-circuit", amount = 3},
+				{type = "item", name = "advanced-circuit", amount = 3}
+			},
             energy_required = 13,
-            result = "speed-module",
+            results = {{type = "item", name = "speed-module", amount = 1}},
         }
     },
     {
@@ -105,9 +130,12 @@ return {
             production = 20
         },
         recipe = {
-            ingredients = {{"electronic-circuit", 3}, {"advanced-circuit", 3}},
+            ingredients = {
+				{type = "item", name = "electronic-circuit", amount = 3},
+				{type = "item", name = "advanced-circuit", amount = 3}
+			},
             energy_required = 13,
-            result = "efficiency-module",
+            results = {{type = "item", name = "efficiency-module", amount = 1}},
         }
     },
     {
@@ -117,9 +145,12 @@ return {
             production = 20
         },
         recipe = {
-            ingredients = {{"electronic-circuit", 3}, {"advanced-circuit", 3}},
+            ingredients = {
+				{type = "item", name = "electronic-circuit", amount = 3},
+				{type = "item", name = "advanced-circuit",   amount = 3}
+			},
             energy_required = 13,
-            result = "productivity-module",
+            results = {{type = "item", name = "productivity-module", amount = 1}},
         }
     },
     {
@@ -156,9 +187,12 @@ return {
         },
         recipe = {
             category = "crafting-with-fluid",
-            ingredients = {{"coal", 1}, {type="fluid", name="petroleum-gas", amount=15}},
+            ingredients = {
+				{type = "item",  name = "coal",          amount = 1},
+				{type = "fluid", name = "petroleum-gas", amount = 15}
+			},
             energy_required = 0.75,
-            results = {{"plastic-bar", 2}},
+            results = {{type = "item", name = "plastic-bar", amount = 2}},
         }
     },
     {
@@ -168,9 +202,13 @@ return {
             production = 150
         },
         recipe = {
-            ingredients = {{"copper-plate", 4}, {"steel-plate", 4}, {"electronic-circuit", 10}},
+            ingredients = {
+				{type = "item",  name = "copper-plate",       amount = 4},
+				{type = "item",  name = "steel-plate",        amount = 4},
+				{type = "item",  name = "electronic-circuit", amount = 10}
+			},
             energy_required = 8,
-            result = "solar-panel"
+            results = {{type = "item", name = "solar-panel", amount = 1}}
         }
     },
 }

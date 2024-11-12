@@ -4,7 +4,7 @@ local SPECIALIZATIONS = require("specializations-data")
 local function GetLastStatForSpecialization(spec, force)
     local id = force.name .. "/" .. spec.name
 	local output_stats = storage.output_stat
-	local output_stat = output_stat[id]
+	local output_stat = output_stats[id]
     if output_stat then
 		return output_stat
 	end
@@ -20,14 +20,12 @@ end
 local function GetCurrentStatSumForSpecialization(spec, force)
     local output_sum = 0
     if spec.requirement.fluid then
-		local fluid_production_statistics = force.fluid_production_statistics
 		for _, surface in pairs(game.surfaces) do
-			output_sum = output_sum + fluid_production_statistics(surface).get_input_count(spec.requirement.name)
+			output_sum = output_sum + force.get_fluid_production_statistics(surface).get_input_count(spec.requirement.name)
 		end
     else
-		local get_item_production_statistics = force.get_item_production_statistics
 		for _, surface in pairs(game.surfaces) do
-			output_sum = output_sum + get_item_production_statistics(surface).get_input_count(spec.requirement.name)
+			output_sum = output_sum + force.get_item_production_statistics(surface).get_input_count(spec.requirement.name)
 		end
     end
     return output_sum
@@ -94,7 +92,7 @@ function UpdateSpecializations()
 end
 
 local HORIZONTAL_FLOW = {type = "flow"}
-local VERTICAL_FLOW = {type = "flow", direction = "vertical"}
+local VERTICAL_FLOW   = {type = "flow", direction = "vertical"}
 function SpecializationGUI( player )
     local leftGUI = player.gui.left
     if leftGUI['specialization-gui'] then

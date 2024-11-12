@@ -64,9 +64,10 @@ function ClaimPoleBuilt(entity)
 end
 
 function ClaimPoleRemoved(entity)
+	local force = entity.force
     local cost = GetClaimCost(entity)
-    if cost then
-        AddCredits(entity.force, cost)
+    if cost and call("EasyAPI", "get_force_money", force.index) then
+        AddCredits(force, cost)
     end
 end
 

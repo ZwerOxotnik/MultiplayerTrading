@@ -49,7 +49,7 @@ if allow_early_bird_research and settings.startup['early-bird-research'].value t
     end
     local valid_tech = {}
     for tech_name, technology in pairs(technologies) do
-        if not technology.upgrade and technology.unit.count and is_tech_valid_for_early_bird(technology) then
+        if not technology.upgrade and technology.unit and technology.unit.count and is_tech_valid_for_early_bird(technology) then
             table.insert(valid_tech, tech_name)
         end
     end

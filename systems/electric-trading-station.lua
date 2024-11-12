@@ -120,11 +120,13 @@ function UpdateElectricTradingStations(stations)
 end
 
 function DisallowElectricityTheft(entity, instigatingForce)
-    local disconnect_neighbour = entity.disconnect_neighbour
     if instigatingForce then
-        for _, neighbour in pairs(entity.neighbours["copper"]) do
-            if instigatingForce ~= neighbour.force and not instigatingForce.get_friend(neighbour.force) then
-                disconnect_neighbour(neighbour)
+		local neighbours = entity.get_wire_connectors()[defines.wire_connector_id.pole_copper]
+		for _, connection in pairs(neighbours.real_connections) do
+			local target = connection.target
+			local neighbour_force = target.owner.force
+            if instigatingForce ~= neighbour_force and not instigatingForce.get_friend(neighbour_force) then
+                target.disconnect_all()
             end
         end
     end

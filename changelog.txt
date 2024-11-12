@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.10.0
+Date: 12. 11. 2024
+  Changes:
+    - Updated for Factorio 2.0
+  Bugfixes:
+    - Fixed buildings in editor mode
+  Locale:
+    - Added Russian translation (contributed by @afadeevz (Alexander Fadeev) on crowdin)
+    - Added German  translation (contributed by @len_non on crowdin)
+  Notes:
+    - Updated by ZwerOxotnik
+---------------------------------------------------------------------------------------------------
 Version: 0.9.17
 Date: 13. 03. 2023
   Locale:

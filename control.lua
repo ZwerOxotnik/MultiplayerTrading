@@ -28,14 +28,14 @@ local IS_LAND_CLAIM = settings.startup['land-claim'].value
 ---#endregion
 
 
---#region Global data
-local electric_trading_stations
-local credit_mints
-local sell_boxes
-local orders
-local open_order
-local early_bird_tech
-local specializations
+--#region Storage data
+local __electric_trading_stations
+local __credit_mints
+local __sell_boxes
+local __orders
+local __open_order
+local __early_bird_tech
+local __specializations
 ---#endregion
 
 
@@ -82,55 +82,55 @@ POLES = {
 
 
 local function clear_invalid_entities()
-    for unit_number, entity in pairs(sell_boxes) do
+    for unit_number, entity in pairs(__sell_boxes) do
         if not entity.valid then
-            sell_boxes[unit_number] = nil
-            orders[unit_number] = nil
+            __sell_boxes[unit_number] = nil
+            __orders[unit_number] = nil
         end
     end
-    for unit_number, data in pairs(credit_mints) do
+    for unit_number, data in pairs(__credit_mints) do
         if not data.entity.valid then -- TODO: check, is data.entity has weird characters?
-            credit_mints[unit_number] = nil
+            __credit_mints[unit_number] = nil
         end
     end
-    for unit_number, data in pairs(electric_trading_stations) do
+    for unit_number, data in pairs(__electric_trading_stations) do
         if not data.entity.valid then -- TODO: check, is data.entity has weird characters?
-            electric_trading_stations[unit_number] = nil
+            __electric_trading_stations[unit_number] = nil
         end
     end
-    for unit_number, data in pairs(orders) do
+    for unit_number, data in pairs(__orders) do
         if not data.entity.valid then -- TODO: check, is data.entity has weird characters?
-            orders[unit_number] = nil
+            __orders[unit_number] = nil
         end
     end
 end
 
 local function link_data()
-    credit_mints = storage.credit_mints
-    electric_trading_stations = storage.electric_trading_stations
-    sell_boxes = storage.sell_boxes
-    orders = storage.orders
-    open_order = storage.open_order
-    early_bird_tech = storage.early_bird_tech
-    specializations = storage.specializations
+    __credit_mints = storage.credit_mints
+    __electric_trading_stations = storage.electric_trading_stations
+    __sell_boxes = storage.sell_boxes
+    __orders = storage.orders
+    __open_order = storage.open_order
+    __early_bird_tech = storage.early_bird_tech
+    __specializations = storage.specializations
 end
 
 local function CheckGlobalData()
-    storage.sell_boxes = storage.sell_boxes or {}
-    storage.orders = storage.orders or {}
+    storage.sell_boxes   = storage.sell_boxes or {}
+    storage.orders       = storage.orders or {}
     storage.credit_mints = storage.credit_mints or {}
+    storage.open_order   = storage.open_order or {}
+    storage.output_stat  = storage.output_stat or {}
     storage.specializations = storage.specializations or {}
-    storage.output_stat = storage.output_stat or {}
     storage.early_bird_tech = storage.early_bird_tech or {}
-    storage.open_order = storage.open_order or {}
     storage.electric_trading_stations = storage.electric_trading_stations or {}
 
     link_data()
 
     clear_invalid_entities()
-    for player_index in pairs(open_order) do
+    for player_index in pairs(__open_order) do
         if game.get_player(player_index) == nil then
-            open_order[player_index] = nil
+            __open_order[player_index] = nil
         end
     end
 end
@@ -158,14 +158,14 @@ local function on_load()
 end
 
 local function on_player_removed(event)
-    open_order[event.player_index] = nil
+    __open_order[event.player_index] = nil
 end
 
 local function fix_force_recipes(event)
   local force = event.force
   local recipes = force.recipes
   local force_name = force.name
-  for spec_name, _force_name in pairs(specializations)  do
+  for spec_name, _force_name in pairs(__specializations)  do
     if _force_name == force_name then
       recipes[spec_name].enabled = true
     end
@@ -179,35 +179,37 @@ local function on_research_finished(event)
     if research.force.technologies[base_tech_name .. "-mpt-1"] == nil then
         return
     end
-    early_bird_tech[research.force.name .. "/" .. base_tech_name] = true
+    __early_bird_tech[research.force.name .. "/" .. base_tech_name] = true
     for _, force in pairs(game.forces) do
         local force_tech_state_id = force.name .. "/" .. base_tech_name
         local tech = force.technologies[research.name]
         if not tech.researched then
-            local progress = force.get_saved_technology_progress(research.name)
+            local progress = tech.saved_progress
             if string.find(research.name, "-mpt-") ~= nil then
                 -- Another force has researched the 2nd, 3rd or 4th version of this tech.
                 local tier_index = string.find(research.name, "[0-9]$")
                 local tier = tonumber(string.sub( research.name, tier_index ))
                 if tier < 4 then
                     local next_tech_name =  base_tech_name .. "-mpt-" .. tostring(tier + 1)
+					local tech2 = force.technologies[next_tech_name]
                     if progress then
                         progress = progress / math.pow(tech_cost_multiplier, tier + 1)
-                        force.set_saved_technology_progress(next_tech_name, progress)
+                        tech2.saved_progress = progress
                     end
-                    if not early_bird_tech[force_tech_state_id] then
-                        force.technologies[next_tech_name].enabled = true
+                    if not __early_bird_tech[force_tech_state_id] then
+                        tech2.enabled = true
                     end
                     tech.enabled = false
                 end
             else
                 -- Another force has researched this tech for the 1st time.
                 local next_tech_name = research.name .. "-mpt-1"
+				local tech2 = force.technologies[next_tech_name]
                 if progress then
                     progress = progress / tech_cost_multiplier
-                    force.set_saved_technology_progress(next_tech_name, progress)
+                    tech2.saved_progress = progress
                 end
-                force.technologies[next_tech_name].enabled = true
+                tech2.enabled = true
                 tech.enabled = false
             end
         end
@@ -217,20 +219,20 @@ end
 local special_builds = {
     ["sell-box"] = function(entity)
         entity.operable = false
-        sell_boxes[entity.unit_number] = entity
+        __sell_boxes[entity.unit_number] = entity
     end,
     ["buy-box"] = function(entity)
         entity.operable = false
-        sell_boxes[entity.unit_number] = entity
+        __sell_boxes[entity.unit_number] = entity
     end,
     ["credit-mint"] = function(entity)
-        credit_mints[entity.unit_number] = {
+        __credit_mints[entity.unit_number] = {
             ['entity'] = entity,
             ['progress'] = 0
         }
     end,
     ["electric-trading-station"] = function(entity)
-        electric_trading_stations[entity.unit_number] = {
+        __electric_trading_stations[entity.unit_number] = {
             ['entity'] = entity,
             sell_price = 1,
             buy_bid = 1
@@ -251,13 +253,13 @@ local function HandleEntityMined(event)
         ClaimPoleRemoved(entity)
         return
     elseif entity_name == "credit-mint" then
-        credit_mints[entity.unit_number] = nil
+        __credit_mints[entity.unit_number] = nil
     elseif entity_name == "electric-trading-station" then
-        electric_trading_stations[entity.unit_number] = nil
+        __electric_trading_stations[entity.unit_number] = nil
     else -- "buy-box", "sell-box"
         local unit_number = entity.unit_number
-        sell_boxes[unit_number] = nil
-        orders[unit_number] = nil
+        __sell_boxes[unit_number] = nil
+        __orders[unit_number] = nil
     end
 end
 
@@ -265,20 +267,20 @@ local function HandleEntityDied(event)
     local entity = event.entity
     local entity_name = entity.name
     if entity_name == "credit-mint" then
-        credit_mints[entity.unit_number] = nil
+        __credit_mints[entity.unit_number] = nil
     elseif entity_name == "electric-trading-station" then
-        electric_trading_stations[entity.unit_number] = nil
+        __electric_trading_stations[entity.unit_number] = nil
     else -- "buy-box", "sell-box"
         local unit_number = entity.unit_number
-        sell_boxes[unit_number] = nil
-        orders[unit_number] = nil
+        __sell_boxes[unit_number] = nil
+        __orders[unit_number] = nil
     end
 end
 
 -- TODO: OPTIMIZE!
 local function check_boxes()
-    for unit_number, sell_box in pairs(sell_boxes) do
-        local sell_order = orders[unit_number]
+    for unit_number, sell_box in pairs(__sell_boxes) do
+        local sell_order = __orders[unit_number]
         if sell_order then -- it seems wrong
             local sell_order_name = sell_order.name
             if sell_order_name then
@@ -291,7 +293,7 @@ local function check_boxes()
                     for i = 1, #buy_boxes do -- it seems overcomplex
                         local buy_box = buy_boxes[i]
                         if buy_box.force ~= sell_box.force then
-                            local buy_order = orders[buy_box.unit_number]
+                            local buy_order = __orders[buy_box.unit_number]
                             if buy_order and buy_order.name == sell_order_name and buy_order.value >= sell_order.value then
                                 Transaction(sell_box, buy_box, buy_order, 1)
                             end
@@ -311,7 +313,7 @@ local function check_credit_mints()
     end
 
     -- TODO: optimize
-    for _, credit_mint in pairs(credit_mints) do
+    for _, credit_mint in pairs(__credit_mints) do
         local entity = credit_mint.entity
         local energy = entity.energy / entity.electric_buffer_size
         local progress = credit_mint.progress + (energy * minting_speed)
@@ -384,7 +386,7 @@ end
 
 function SellboxGUIOpen(player, entity)
     local player_index = player.index
-    if entity and entity.valid and open_order[player_index] == nil then
+    if entity and entity.valid and __open_order[player_index] == nil then
         local same_force = (entity.force == player.force)
         if entity.name == "sell-box" then
             local unit_number = entity.unit_number
@@ -398,17 +400,17 @@ function SellboxGUIOpen(player, entity)
                 item_value = row1.add{type = "label", caption = "price: ", name = "sell-box-value"}
                 item_picker.locked = true
             end
-            local order = orders[unit_number]
+            local order = __orders[unit_number]
             if not order then
-                orders[unit_number] = {
+                __orders[unit_number] = {
                     type = "sell",
                     ['entity'] = entity,
                     value = 1
                 }
-                order = orders[unit_number]
+                order = __orders[unit_number]
             end
             item_picker.elem_value = order.name
-            open_order[player_index] = order
+            __open_order[player_index] = order
             if same_force then
                 item_value.text = tostring(order.value)
             else
@@ -429,17 +431,17 @@ function SellboxGUIOpen(player, entity)
                 item_value = row1.add{type = "label", caption = "price: ", name = "sell-box-value"}
                 item_picker.locked = true
             end
-            local order = orders[unit_number]
+            local order = __orders[unit_number]
             if not order then
                 order = {
                     type = "buy",
                     ['entity'] = entity,
                     value = 1
                 }
-                orders[unit_number] = order
+                __orders[unit_number] = order
             end
             item_picker.elem_value = order.name
-            open_order[player_index] = order
+            __open_order[player_index] = order
             if same_force then
                 item_value.text = tostring(order.value)
             else
@@ -456,11 +458,11 @@ function SellOrBuyGUIClose(event)
     local player = game.get_player(event.player_index)
     local gui = player.gui.center
     if gui['sell-box-gui'] then
-        open_order[player.index] = nil
+        __open_order[player.index] = nil
         gui['sell-box-gui'].destroy()
     end
     if gui['buy-box-gui'] then
-        open_order[player.index] = nil
+        __open_order[player.index] = nil
         gui['buy-box-gui'].destroy()
     end
 end
@@ -474,9 +476,9 @@ local function on_gui_text_changed(event)
 
     local element_name = element.name
     if element_name == "buy-box-value" then
-        orders[open_order[player.index].entity.unit_number].value = max(tonumber(element.text) or 1, 1)
+        __orders[__open_order[player.index].entity.unit_number].value = max(tonumber(element.text) or 1, 1)
     elseif element_name == "sell-box-value" then
-        orders[open_order[player.index].entity.unit_number].value = max(tonumber(element.text) or 1, 1)
+        __orders[__open_order[player.index].entity.unit_number].value = max(tonumber(element.text) or 1, 1)
     end
 end
 
@@ -486,16 +488,16 @@ local function on_gui_elem_changed(event)
     local element = event.element
     local element_name = element.name
     if element_name == "buy-box-item" then
-        orders[open_order[player.index].entity.unit_number].name = element.elem_value
+        __orders[__open_order[player.index].entity.unit_number].name = element.elem_value
     elseif element_name == "sell-box-item" then
-        orders[open_order[player.index].entity.unit_number].name = element.elem_value
+        __orders[__open_order[player.index].entity.unit_number].name = element.elem_value
     end
 end
 
 local function on_gui_click(event)
     local player = game.get_player(event.player_index)
     local element = event.element
-    local order = open_order[player.index]
+    local order = __open_order[player.index]
     if order == nil then return end
     local order_name = order.name
     if order_name == nil then return end
@@ -552,7 +554,7 @@ local function on_configuration_changed(event)
 
     for force_name, force in pairs(game.forces) do
         local recipes = force.recipes
-        for spec_name, _force_name in pairs(specializations) do
+        for spec_name, _force_name in pairs(__specializations) do
             if _force_name == force_name then
                 recipes[spec_name].enabled = true
             end
@@ -566,41 +568,41 @@ local function on_configuration_changed(event)
     local version = tonumber(string.gmatch(mod_changes.old_version, "%d+.%d+")())
   if version < 0.7 then
         -- Check unit numbers
-        for _unit_number, entity in pairs(sell_boxes) do
+        for _unit_number, entity in pairs(__sell_boxes) do
             local unit_number = entity.unit_number
             if _unit_number ~= unit_number then
-                sell_boxes[unit_number] = sell_boxes[_unit_number]
-                sell_boxes[_unit_number] = nil
-                if orders[_unit_number] then
-                    orders[unit_number] = {
-                        value = orders[_unit_number].value,
-                        name = orders[_unit_number].name
+                __sell_boxes[unit_number] = __sell_boxes[_unit_number]
+                __sell_boxes[_unit_number] = nil
+                if __orders[_unit_number] then
+                    __orders[unit_number] = {
+                        value = __orders[_unit_number].value,
+                        name = __orders[_unit_number].name
                     }
-                    orders[_unit_number] = nil
+                    __orders[_unit_number] = nil
                 end
             end
         end
-        for _unit_number, data in pairs(credit_mints) do
+        for _unit_number, data in pairs(__credit_mints) do
             local unit_number = data.entity.unit_number
             if _unit_number ~= unit_number then -- TODO: check, is data.entity has weird characters?
-                credit_mints[unit_number] = {
-                    ['entity'] = credit_mints[_unit_number].entity,
-                    ['progress'] = credit_mints[_unit_number].progress
+                __credit_mints[unit_number] = {
+                    ['entity'] = __credit_mints[_unit_number].entity,
+                    ['progress'] = __credit_mints[_unit_number].progress
                 }
-                credit_mints[_unit_number] = nil
+                __credit_mints[_unit_number] = nil
             end
         end
     end
   if version < 0.8 then
-        for _unit_number, data in pairs(electric_trading_stations) do
+        for _unit_number, data in pairs(__electric_trading_stations) do
             local unit_number = data.entity.unit_number
             if _unit_number ~= unit_number then -- TODO: check, is data.entity has weird characters?
-                electric_trading_stations[unit_number] = {
-                    ['entity'] = electric_trading_stations[_unit_number].entity,
-                    sell_price = electric_trading_stations[_unit_number].sell_price,
-                    buy_bid = electric_trading_stations[_unit_number].buy_bid
+                __electric_trading_stations[unit_number] = {
+                    ['entity'] = __electric_trading_stations[_unit_number].entity,
+                    sell_price = __electric_trading_stations[_unit_number].sell_price,
+                    buy_bid = __electric_trading_stations[_unit_number].buy_bid
                 }
-                electric_trading_stations[_unit_number] = nil
+                __electric_trading_stations[_unit_number] = nil
             end
         end
     end
@@ -635,16 +637,22 @@ script.on_event(defines.events.on_built_entity, function(event)
             is_electric_pole = true
         end
         local player = game.get_player(event.player_index)
-        local can_build = DestroyInvalidEntities(entity, player)
-        if can_build then
-            if is_electric_pole then
-				ClaimPoleBuilt(entity)
-                DisallowElectricityTheft(entity, player.force)
-                return
-            end
-        else
-            return
-        end
+		local is_check = true
+		if player.valid and player.controller_type == defines.controllers.editor then
+			is_check = false
+		end
+		if is_check then
+			local can_build = DestroyInvalidEntities(entity, player)
+			if can_build then
+				if is_electric_pole then
+					ClaimPoleBuilt(entity)
+					DisallowElectricityTheft(entity, player.force)
+					return
+				end
+			else
+				return
+			end
+		end
     end
 
     HandleEntityBuild(entity)
@@ -784,7 +792,7 @@ end
 remote.add_interface("multiplayer-trading", {})
 
 script.on_nth_tick(60, function()
-    UpdateElectricTradingStations(electric_trading_stations)
+    UpdateElectricTradingStations(__electric_trading_stations)
 end)
 
 script.on_nth_tick(15, check_boxes)

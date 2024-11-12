@@ -145,40 +145,55 @@ data:extend{
         type = "custom-input",
         name = "sellbox-gui-open",
         key_sequence = "mouse-button-1"
-    }, {type = "custom-input", name = "specialization-gui", key_sequence = "J"},
-    {type = "custom-input", name = "sellbox-gui-close", key_sequence = "E"}, {
+    },
+	{type = "custom-input", name = "specialization-gui", key_sequence = "J"},
+    {type = "custom-input", name = "sellbox-gui-close",  key_sequence = "E"},
+	{
         type = "recipe",
         name = "credit-mint",
-        ingredients = {{"electronic-circuit", 50}, {"iron-gear-wheel", 50}},
+        ingredients = {
+			{type = "item", name = "electronic-circuit", amount = 50},
+			{type = "item", name = "iron-gear-wheel",    amount = 50}
+		},
         energy_required = 30,
-        results = {{"credit-mint", 1}}
+        results = {{type = "item", name = "credit-mint", amount = 1}}
     }, {
         type = "recipe",
         name = "sell-box",
-        ingredients = {{"steel-chest", 1}, {"electronic-circuit", 2}},
+        ingredients = {
+			{type = "item", name = "steel-chest",        amount = 1},
+			{type = "item", name = "electronic-circuit", amount = 2}
+		},
         energy_required = 1,
-        results = {{"sell-box", 1}}
+        results = {{type = "item", name = "sell-box", amount = 1}}
     }, {
         type = "recipe",
         name = "buy-box",
-        ingredients = {{"steel-chest", 1}, {"electronic-circuit", 2}},
+        ingredients = {
+			{type = "item", name = "steel-chest",        amount = 1},
+			{type = "item", name = "electronic-circuit", amount = 2}
+		},
         energy_required = 1,
-        results = {{"buy-box", 1}}
+        results = {{type = "item", name = "buy-box", amount = 1}}
     }, {
         type = "recipe",
         name = "electric-trading-station",
-        ingredients = {{"substation", 1}, {"electronic-circuit", 2}},
+        ingredients = {
+			{type = "item", name = "substation",         amount = 1},
+			{type = "item", name = "electronic-circuit", amount = 2}
+		},
         energy_required = 5,
-        result = "electric-trading-station"
+        results = {{type = "item", name = "electric-trading-station", amount = 1}}
     }, {
         type = "recipe",
         name = "global-market",
         ingredients = {
-            {"steel-chest", 9}, {"electronic-circuit", 20},
-            {"advanced-circuit", 5}
+            {type = "item", name = "steel-chest",        amount = 9},
+			{type = "item", name = "electronic-circuit", amount = 20},
+            {type = "item", name = "advanced-circuit",   amount = 5}
         },
         energy_required = 10,
-        result = "global-market"
+        results = {{type = "item", name = "global-market", amount = 1}}
     }, {
         type = "item",
         name = "credit-mint",
